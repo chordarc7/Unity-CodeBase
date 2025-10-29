@@ -8,15 +8,15 @@ namespace Core
 {
     public class ObjectResolver
     {
-        private readonly HashSet<Type> registrations = new();
-        private readonly Dictionary<Type, object> instancePerTypeDict = new();
+        private readonly HashSet<Type> _registrations = new();
+        private readonly Dictionary<Type, object> _instancePerTypeDict = new();
 
         /// <summary>
         /// Register a type so it can be constructed
         /// </summary>
         public void Register<T>()
         {
-            registrations.Add(typeof(T));
+            _registrations.Add(typeof(T));
         }
 
         /// <summary>
@@ -24,8 +24,8 @@ namespace Core
         /// </summary>
         public void RegisterInstance<T>(T instance)
         {
-            instancePerTypeDict[typeof(T)] = instance;
-            registrations.Add(instance.GetType());
+            _instancePerTypeDict[typeof(T)] = instance;
+            _registrations.Add(instance.GetType());
         }
 
         /// <summary>
@@ -33,8 +33,8 @@ namespace Core
         /// </summary>
         public void UnregisterType<T>()
         {
-            instancePerTypeDict.Remove(typeof(T));
-            registrations.Remove(typeof(T));
+            _instancePerTypeDict.Remove(typeof(T));
+            _registrations.Remove(typeof(T));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Core
         private object Resolve(Type type, Stack<Type> stack)
         {
             // try get from cache
-            if (instancePerTypeDict.TryGetValue(type, out object instance))
+            if (_instancePerTypeDict.TryGetValue(type, out object instance))
             {
                 return instance;
             }
@@ -67,7 +67,7 @@ namespace Core
             }
 
             // ensure type is registered
-            if (!registrations.Contains(type))
+            if (!_registrations.Contains(type))
             {
                 Debug.LogError($"[{this}] Couldn't resolve type {type}");
                 return null;
@@ -121,7 +121,7 @@ namespace Core
                 throw;
             }
 
-            instancePerTypeDict[type] = instance;
+            _instancePerTypeDict[type] = instance;
             return instance;
         }
     }
